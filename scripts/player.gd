@@ -1,19 +1,22 @@
 extends CharacterBody2D
 
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 const SPEED = 150.0
 const JUMP_VELOCITY = -300.0
 
-@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
+var cj_timer = 0
+var cj_max = 0.5
 
 
 func _physics_process(delta: float) -> void:
 	# Add the gravity.
 	if not is_on_floor():
 		velocity += get_gravity() * delta
+		cj_timer += delta
 
 	# Handle jump.
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	if Input.is_action_just_pressed("jump") and (is_on_floor() or cj_timer <= cj_max):
 		velocity.y = JUMP_VELOCITY
 
 	# Get the input direction and handle the movement/deceleration.
@@ -28,6 +31,7 @@ func _physics_process(delta: float) -> void:
 	
 	# Play animations
 	if is_on_floor():
+		cj_timer = 0
 		if direction == 0:
 			animated_sprite.play("idle")
 		else:
